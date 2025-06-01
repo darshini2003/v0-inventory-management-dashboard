@@ -1,10 +1,6 @@
-import { LandingPage } from "@/components/landing/landing-page"
-import { MainLayout } from "@/components/layout/main-layout"
+import { redirect } from "next/navigation"
 
 export default function HomePage() {
-  return (
-    <MainLayout>
-      <LandingPage />
-    </MainLayout>
-  )
+  // Redirect to dashboard
+  redirect("/dashboard")
 }

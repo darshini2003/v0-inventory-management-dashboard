@@ -11,57 +11,24 @@ export async function createClient() {
   if (supabaseUrl === "https://placeholder.supabase.co") {
     return {
       auth: {
-        getSession: () =>
-          Promise.resolve({
-            data: {
-              session: {
-                user: {
-                  id: "demo-user-id",
-                  email: "demo@stocksync.com",
-                },
-              },
-            },
-            error: null,
-          }),
-        getUser: () =>
-          Promise.resolve({
-            data: {
-              user: {
-                id: "demo-user-id",
-                email: "demo@stocksync.com",
-              },
-            },
-            error: null,
-          }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
       },
-      from: (table: string) => ({
-        select: (columns?: string) => ({
-          eq: (column: string, value: any) => ({
-            single: () =>
-              Promise.resolve({
-                data:
-                  table === "profiles"
-                    ? {
-                        id: "demo-user-id",
-                        role: "admin",
-                        email: "demo@stocksync.com",
-                        full_name: "Demo User",
-                      }
-                    : null,
-                error: null,
-              }),
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            single: () => Promise.resolve({ data: null, error: null }),
           }),
-          order: (column: string) => Promise.resolve({ data: [], error: null }),
-          limit: (count: number) => Promise.resolve({ data: [], error: null }),
+          order: () => Promise.resolve({ data: [], error: null }),
+          limit: () => Promise.resolve({ data: [], error: null }),
           count: "exact",
           head: true,
         }),
-        insert: (data: any) => Promise.resolve({ data: null, error: null }),
-        update: (data: any) => ({
-          eq: (column: string, value: any) => Promise.resolve({ error: null }),
+        insert: () => Promise.resolve({ data: null, error: null }),
+        update: () => ({
+          eq: () => Promise.resolve({ error: null }),
         }),
         delete: () => ({
-          eq: (column: string, value: any) => Promise.resolve({ error: null }),
+          eq: () => Promise.resolve({ error: null }),
         }),
       }),
     } as any
