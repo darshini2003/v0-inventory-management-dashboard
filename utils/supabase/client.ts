@@ -33,6 +33,16 @@ export function createClient() {
           eq: () => Promise.resolve({ error: null }),
         }),
       }),
+      // Add mock channel method for real-time subscriptions
+      channel: (channelName: string) => ({
+        on: (event: string, config: any, callback: (payload: any) => void) => ({
+          subscribe: () => ({
+            unsubscribe: () => {
+              console.log("Mock subscription unsubscribed")
+            },
+          }),
+        }),
+      }),
     } as any
   }
 
