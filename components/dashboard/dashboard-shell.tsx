@@ -32,6 +32,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { NotificationBell } from "@/components/dashboard/notification-bell"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { BRAND, COLORS } from "@/lib/constants"
 
 interface DashboardShellProps {
   children?: React.ReactNode
@@ -46,17 +48,14 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     role: "admin",
   })
 
-  // Remove the complex useEffect and just use demo data
-  // This prevents any async issues in the preview environment
-
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar variant="inset" collapsible="icon">
           <SidebarHeader className="flex flex-col gap-0 py-4">
             <div className="flex items-center px-4">
-              <Box className="mr-2 h-6 w-6 text-indigo-600" />
-              <span className="font-semibold text-lg">StockSync Cloud</span>
+              <Box className={`mr-2 h-6 w-6 text-${COLORS.primary}-600`} />
+              <span className="font-semibold text-lg">{BRAND.name}</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -165,6 +164,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
           <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-6">
             <SidebarTrigger />
             <div className="ml-auto flex items-center gap-2">
+              <ThemeToggle />
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

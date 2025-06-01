@@ -1,82 +1,132 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertTriangle, Package, ShoppingCart, Building } from "lucide-react"
+"use client"
 
-// Simplify the data fetching to avoid complex Supabase calls in preview
-export async function DashboardSummaryCards() {
-  // Always use mock data for preview environment to avoid errors
-  const totalItems = 1247
-  const lowStockItems = Array(8).fill(null) // 8 low stock items
-  const recentOrders = Array(23).fill(null) // 23 recent orders
-  const activeSuppliers = Array(12).fill(null) // 12 active suppliers
-  const totalValue = 284750
-  const percentChange = 12.5
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Package, AlertTriangle, DollarSign, TrendingUp, Wifi } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from "react"
+
+interface DashboardStats {
+  totalProducts: number
+  lowStockCount: number
+  totalInventoryValue: number
+  monthlyRevenue: number
+}
+
+export function DashboardSummaryCards() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    lowStockCount: 0,
+    totalInventoryValue: 0,
+    monthlyRevenue: 0,
+  })
+  const [loading, setLoading] = useState(true)
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+
+  useEffect(() => {
+    // Simulate loading and then set mock data
+    const timer = setTimeout(() => {
+      setStats({
+        totalProducts: 1247,
+        lowStockCount: 23,
+        totalInventoryValue: 156780.5,
+        monthlyRevenue: 89432.25,
+      })
+      setLastUpdate(new Date())
+      setLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount)
+  }
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat("en-US").format(num)
+  }
+
+  if (loading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-[100px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+              <Skeleton className="h-4 w-4 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-[120px] mb-2 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+              <Skeleton className="h-3 w-[80px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-shimmer" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    )
+  }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
+    <>
+      <Card className="relative">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Inventory</CardTitle>
+          <CardTitle className="text-sm font-medium">Total Products</CardTitle>
           <Package className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
-          <div className="flex items-center text-xs">
-            <span className={percentChange >= 0 ? "text-emerald-500" : "text-rose-500"}>
-              {percentChange >= 0 ? "↑" : "↓"} {Math.abs(percentChange).toFixed(1)}%
-            </span>
-            <span className="ml-1 text-muted-foreground">vs. last month</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">{totalItems} items in stock</p>
+          <div className="text-2xl font-bold">{formatNumber(stats.totalProducts)}</div>
+          <p className="text-xs text-muted-foreground">{lastUpdate && `Updated ${lastUpdate.toLocaleTimeString()}`}</p>
         </CardContent>
+        {lastUpdate && (
+          <div className="absolute top-2 right-2">
+            <Wifi className="h-3 w-3 text-green-500" />
+          </div>
+        )}
       </Card>
 
-      <Card>
+      <Card className="relative">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertTriangle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{lowStockItems.length}</div>
-          <p className="text-xs text-muted-foreground">Items below threshold</p>
-          <div className="mt-2">
-            <a href="/dashboard/inventory?filter=low-stock" className="text-xs text-indigo-600 hover:underline">
-              View restock list →
-            </a>
+          <div className={`text-2xl font-bold ${stats.lowStockCount > 0 ? "text-amber-600" : "text-green-600"}`}>
+            {formatNumber(stats.lowStockCount)}
           </div>
+          <p className="text-xs text-muted-foreground">
+            {stats.lowStockCount > 0 ? "Items need attention" : "All items in stock"}
+          </p>
+        </CardContent>
+        {stats.lowStockCount > 0 && (
+          <div className="absolute top-2 right-2">
+            <AlertTriangle className="h-3 w-3 text-amber-500 animate-pulse" />
+          </div>
+        )}
+      </Card>
+
+      <Card className="relative">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{formatCurrency(stats.totalInventoryValue)}</div>
+          <p className="text-xs text-muted-foreground">Total value of all products</p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="relative">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Recent Orders</CardTitle>
-          <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{recentOrders.length}</div>
-          <p className="text-xs text-muted-foreground">In the last 7 days</p>
-          <div className="mt-2">
-            <a href="/dashboard/orders" className="text-xs text-indigo-600 hover:underline">
-              View all orders →
-            </a>
-          </div>
+          <div className="text-2xl font-bold">{formatCurrency(stats.monthlyRevenue)}</div>
+          <p className="text-xs text-muted-foreground">Last 30 days</p>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Suppliers</CardTitle>
-          <Building className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{activeSuppliers.length}</div>
-          <p className="text-xs text-muted-foreground">Registered suppliers</p>
-          <div className="mt-2">
-            <a href="/dashboard/suppliers" className="text-xs text-indigo-600 hover:underline">
-              Manage suppliers →
-            </a>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    </>
   )
 }

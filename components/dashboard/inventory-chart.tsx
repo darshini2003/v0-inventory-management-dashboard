@@ -1,20 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  ChartArea,
-  ChartAxisOptions,
-  ChartContainer,
-  ChartLegend,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import { createClient } from "@/utils/supabase/client"
-import { useEffect } from "react"
+import { BarChart3, TrendingUp, TrendingDown } from "lucide-react"
 
-// Define the data structure
 interface StockData {
   month: string
   Electronics: number
@@ -31,10 +21,8 @@ export function InventoryChart() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
-      const supabase = createClient()
 
-      // In a real app, you would fetch this data from Supabase
-      // For now, we'll use mock data
+      // Mock data for demonstration
       const mockData: StockData[] = [
         { month: "Jan", Electronics: 120, Food: 85, Clothing: 56, Office: 42 },
         { month: "Feb", Electronics: 132, Food: 79, Clothing: 62, Office: 46 },
@@ -44,31 +32,72 @@ export function InventoryChart() {
         { month: "Jun", Electronics: 165, Food: 88, Clothing: 78, Office: 57 },
       ]
 
-      setData(mockData)
-      setIsLoading(false)
+      setTimeout(() => {
+        setData(mockData)
+        setIsLoading(false)
+      }, 500)
     }
 
     fetchData()
   }, [])
 
-  // Filter data based on selected category
-  const filteredData = data.map((item) => {
+  const getMaxValue = () => {
     if (category === "all") {
-      return item
+      return Math.max(...data.map((item) => item.Electronics + item.Food + item.Clothing + item.Office))
     }
+    return Math.max(...data.map((item) => item[category as keyof StockData] as number))
+  }
 
-    // Create a new object with only the selected category
-    return {
-      month: item.month,
-      [category]: item[category as keyof typeof item] as number,
-    }
-  })
+  const renderSimpleChart = () => {
+    const maxValue = getMaxValue()
+
+    return (
+      <div className="space-y-4">
+        {data.map((item, index) => {
+          const value =
+            category === "all"
+              ? item.Electronics + item.Food + item.Clothing + item.Office
+              : (item[category as keyof StockData] as number)
+
+          const percentage = (value / maxValue) * 100
+
+          return (
+            <div key={index} className="flex items-center space-x-4">
+              <div className="w-8 text-sm font-medium">{item.month}</div>
+              <div className="flex-1 bg-gray-200 rounded-full h-6 relative overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-full rounded-full transition-all duration-500 ease-out flex items-center justify-end pr-2"
+                  style={{ width: `${percentage}%` }}
+                >
+                  <span className="text-white text-xs font-medium">{value}</span>
+                </div>
+              </div>
+              <div className="w-12 text-right">
+                {index > 0 && data[index - 1] && (
+                  <div className="flex items-center">
+                    {value > ((data[index - 1][category as keyof StockData] as number) || 0) ? (
+                      <TrendingUp className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <TrendingDown className="h-3 w-3 text-red-500" />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
 
   return (
     <Card className="col-span-4">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
-          <CardTitle>Inventory Levels</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Inventory Levels
+          </CardTitle>
           <CardDescription>Stock levels over the last 6 months</CardDescription>
         </div>
         <Select value={category} onValueChange={setCategory}>
@@ -86,79 +115,33 @@ export function InventoryChart() {
       </CardHeader>
       <CardContent className="pt-4">
         {isLoading ? (
-          <div className="h-[350px] flex items-center justify-center">Loading chart data...</div>
-        ) : (
-          <div className="h-[350px]">
-            <ChartContainer data={filteredData}>
-              <ChartLegend />
-              <ChartAxisOptions
-                xAxis={{
-                  dataKey: "month",
-                  tickLine: false,
-                  axisLine: false,
-                  tick: { fill: "hsl(var(--muted-foreground))" },
-                }}
-                yAxis={{
-                  tickLine: false,
-                  axisLine: false,
-                  tick: { fill: "hsl(var(--muted-foreground))" },
-                }}
-              />
-              <ChartArea
-                dataKey="Electronics"
-                stroke="hsl(var(--indigo-600))"
-                fill="hsl(var(--indigo-600))"
-                fillOpacity={0.2}
-                isAnimationActive
-                activeDot
-              />
-              {category === "all" && (
-                <>
-                  <ChartArea
-                    dataKey="Food"
-                    stroke="hsl(var(--emerald-500))"
-                    fill="hsl(var(--emerald-500))"
-                    fillOpacity={0.2}
-                    isAnimationActive
-                    activeDot
+          <div className="h-[350px] flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600 mx-auto" />
+                <div className="absolute inset-0 h-12 w-12 animate-ping rounded-full border-4 border-indigo-300 opacity-20 mx-auto" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-muted-foreground font-medium">Loading chart data...</p>
+                <div className="flex justify-center space-x-1">
+                  <div
+                    className="h-2 w-2 bg-indigo-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
                   />
-                  <ChartArea
-                    dataKey="Clothing"
-                    stroke="hsl(var(--amber-500))"
-                    fill="hsl(var(--amber-500))"
-                    fillOpacity={0.2}
-                    isAnimationActive
-                    activeDot
+                  <div
+                    className="h-2 w-2 bg-indigo-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
                   />
-                  <ChartArea
-                    dataKey="Office"
-                    stroke="hsl(var(--sky-500))"
-                    fill="hsl(var(--sky-500))"
-                    fillOpacity={0.2}
-                    isAnimationActive
-                    activeDot
+                  <div
+                    className="h-2 w-2 bg-indigo-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
                   />
-                </>
-              )}
-              <ChartTooltip
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <ChartTooltipContent
-                        className="border bg-background p-2 shadow-sm"
-                        items={payload.map((entry) => ({
-                          label: entry.dataKey as string,
-                          value: entry.value as string,
-                          color: entry.color as string,
-                        }))}
-                      />
-                    )
-                  }
-                  return null
-                }}
-              />
-            </ChartContainer>
+                </div>
+              </div>
+            </div>
           </div>
+        ) : (
+          <div className="h-[350px] flex flex-col justify-center animate-fade-in">{renderSimpleChart()}</div>
         )}
       </CardContent>
     </Card>

@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Box, CheckCircle } from "lucide-react"
 import { auth } from "@/lib/auth"
+import { AnimatedBackground } from "@/components/ui/animated-background"
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("")
@@ -54,17 +55,17 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <AnimatedBackground className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
-          <Card>
+          <Card className="bg-black/40 border-gray-800 backdrop-blur-sm">
             <CardHeader className="text-center">
               <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-              <CardTitle>Check your email</CardTitle>
-              <CardDescription>We've sent you a confirmation link at {email}</CardDescription>
+              <CardTitle className="text-white">Check your email</CardTitle>
+              <CardDescription className="text-gray-400">We've sent you a confirmation link at {email}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center space-y-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-400">
                   Click the link in the email to verify your account and complete registration.
                 </p>
                 <Button asChild className="w-full">
@@ -74,25 +75,25 @@ export default function RegisterPage() {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </AnimatedBackground>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <AnimatedBackground className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
             <Box className="h-12 w-12 text-indigo-600" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">StockSync Cloud</h2>
-          <p className="mt-2 text-sm text-gray-600">Create your account</p>
+          <h2 className="mt-6 text-3xl font-bold text-white">StockSync Cloud</h2>
+          <p className="mt-2 text-sm text-gray-400">Create your account</p>
         </div>
 
-        <Card>
+        <Card className="bg-black/40 border-gray-800 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Get started</CardTitle>
-            <CardDescription>Create your account to start managing inventory</CardDescription>
+            <CardTitle className="text-white">Get started</CardTitle>
+            <CardDescription className="text-gray-400">Create your account to start managing inventory</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -103,7 +104,9 @@ export default function RegisterPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full name</Label>
+                <Label htmlFor="fullName" className="text-white">
+                  Full name
+                </Label>
                 <Input
                   id="fullName"
                   type="text"
@@ -116,7 +119,9 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email" className="text-white">
+                  Email address
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -129,7 +134,9 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-white">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -142,7 +149,9 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm password</Label>
+                <Label htmlFor="confirmPassword" className="text-white">
+                  Confirm password
+                </Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -161,7 +170,7 @@ export default function RegisterPage() {
             </form>
 
             <div className="mt-6 text-center">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-400">
                 Already have an account?{" "}
                 <Link href="/auth/login" className="text-indigo-600 hover:text-indigo-500">
                   Sign in
@@ -171,6 +180,6 @@ export default function RegisterPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AnimatedBackground>
   )
 }
